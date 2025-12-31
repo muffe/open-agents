@@ -7,9 +7,10 @@
 - [x] move subagent definition into it's own file
 - [x] use toModelOutput to return just the last message / text part from the task tool. (update the system prompt to say summarize your work.)
 - [x] update folders to be (fs, planning, memory, task)
+- [x] cancel requests with esc
 - [ ] pull in and cache context window size with models.dev
 - [ ] implement checkpointing for auto compaction (docs/auto-compaction-checkpoint-idea.md)
 - [ ] implement reasoning support (ui and provider options)
 - [ ] add approved commands (auto approve for similar commands)
-- [ ] cancel requests with esc
 - [ ] audit the input implementation (suggestions not working and missing chars)
+- [ ] support for pasting images
