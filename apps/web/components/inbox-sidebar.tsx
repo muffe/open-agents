@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSidebar } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useLeaderboardRank } from "@/hooks/use-leaderboard-rank";
 import { useSession } from "@/hooks/use-session";
 import type { SessionWithUnread } from "@/hooks/use-sessions";
@@ -327,6 +328,7 @@ const SessionRow = memo(function SessionRow({
   onSessionPrefetch,
   onArchiveSession,
 }: SessionRowProps) {
+  const isMobile = useIsMobile();
   const [isHovered, setIsHovered] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -341,10 +343,12 @@ const SessionRow = memo(function SessionRow({
       leaveTimeoutRef.current = null;
     }
     setIsHovered(true);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setPopoverOpen(true);
-    }, 500);
-  }, []);
+    if (!isMobile) {
+      hoverTimeoutRef.current = setTimeout(() => {
+        setPopoverOpen(true);
+      }, 500);
+    }
+  }, [isMobile]);
 
   const handleMouseLeave = useCallback(() => {
     if (hoverTimeoutRef.current) {
