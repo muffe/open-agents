@@ -2,7 +2,8 @@
 
 import { PatchDiff } from "@pierre/diffs/react";
 import {
-  ArrowLeft,
+  AlignJustify,
+  Columns2,
   FileText,
   Loader2,
   RefreshCw,
@@ -11,6 +12,11 @@ import { useEffect, useMemo, useState } from "react";
 import type { DiffFile } from "@/app/api/sessions/[sessionId]/diff/route";
 import { useGitPanel } from "./git-panel-context";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   type DiffMode,
   useUserPreferences,
@@ -60,7 +66,7 @@ function StaleBanner({ cachedAt }: { cachedAt: Date | null }) {
 function StatusBadge({ status }: { status: DiffFile["status"] }) {
   const styles = {
     added: "bg-green-500/20 text-green-700 dark:text-green-400",
-    modified: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
+    modified: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400",
     deleted: "bg-red-500/20 text-red-700 dark:text-red-400",
     renamed: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400",
   };
@@ -98,7 +104,7 @@ export function DiffTabView() {
     sandboxInfo,
     refreshDiff,
   } = useSessionChatWorkspaceContext();
-  const { focusedDiffFile, setFocusedDiffFile, setActiveView } = useGitPanel();
+  const { focusedDiffFile } = useGitPanel();
   const isMobile = useIsMobile();
   const { preferences } = useUserPreferences();
   const [diffStyle, setDiffStyle] = useState<DiffStyle>("unified");
@@ -122,40 +128,30 @@ export function DiffTabView() {
   const baseOptions =
     diffStyle === "split" ? splitDiffOptions : defaultDiffOptions;
 
-  const handleBack = () => {
-    setActiveView("chat");
-  };
-
-  // If there's no focused file yet (e.g. user clicked the diff tab directly), show a placeholder
+  // If there's no focused file yet, show a placeholder
   if (!focusedDiffFile) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
         <FileText className="h-8 w-8" />
-        <p className="text-sm">Select a file from the Diff panel to view changes</p>
+        <p className="text-sm">Select a file from the Changes panel to view</p>
       </div>
     );
   }
+
+  const fileName = file ? file.path.split("/").pop() ?? file.path : "";
 
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
       <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-2">
         <div className="flex min-w-0 items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 px-0"
-            onClick={handleBack}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
           {file && (
-            <div className="flex min-w-0 items-center gap-2">
-              <span className="min-w-0 truncate text-sm font-medium">
-                {file.path}
+            <>
+              <span className="shrink-0 text-sm font-medium font-mono">
+                {fileName}
               </span>
               <StatusBadge status={file.status} />
-              <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex shrink-0 items-center gap-1.5 text-xs">
                 {file.additions > 0 && (
                   <span className="text-green-600 dark:text-green-500">
                     +{file.additions}
@@ -167,47 +163,62 @@ export function DiffTabView() {
                   </span>
                 )}
               </div>
-            </div>
+            </>
           )}
         </div>
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => refreshDiff()}
-            disabled={diffRefreshing || !sandboxInfo}
-            className="h-7 px-2 text-xs"
-            title="Refresh diff"
-          >
-            <RefreshCw
-              className={cn("h-3 w-3", diffRefreshing && "animate-spin")}
-            />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => refreshDiff()}
+                disabled={diffRefreshing || !sandboxInfo}
+                className="h-7 w-7 px-0"
+              >
+                <RefreshCw
+                  className={cn("h-3.5 w-3.5", diffRefreshing && "animate-spin")}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Refresh</TooltipContent>
+          </Tooltip>
+          {/* Unified / Split icon toggle */}
           <div className="hidden items-center rounded-md border border-border md:flex">
-            <button
-              type="button"
-              onClick={() => setDiffStyle("unified")}
-              className={cn(
-                "rounded-l-md px-2.5 py-1 text-xs font-medium transition-colors",
-                diffStyle === "unified"
-                  ? "bg-secondary text-secondary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Unified
-            </button>
-            <button
-              type="button"
-              onClick={() => setDiffStyle("split")}
-              className={cn(
-                "rounded-r-md px-2.5 py-1 text-xs font-medium transition-colors",
-                diffStyle === "split"
-                  ? "bg-secondary text-secondary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Split
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setDiffStyle("unified")}
+                  className={cn(
+                    "rounded-l-md p-1.5 transition-colors",
+                    diffStyle === "unified"
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <AlignJustify className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Unified</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setDiffStyle("split")}
+                  className={cn(
+                    "rounded-r-md p-1.5 transition-colors",
+                    diffStyle === "split"
+                      ? "bg-secondary text-secondary-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Columns2 className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Split</TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>

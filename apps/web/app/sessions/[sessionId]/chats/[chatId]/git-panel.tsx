@@ -166,8 +166,11 @@ function DiffFileStatusIcon({ status }: { status: DiffFile["status"] }) {
   if (status === "deleted") {
     return <SquareMinus className="h-4 w-4 shrink-0 text-red-500" />;
   }
-  // modified, renamed
-  return <SquareDot className={cn("h-4 w-4 shrink-0", status === "renamed" ? "text-yellow-500" : "text-blue-500")} />;
+  if (status === "renamed") {
+    return <SquareDot className="h-4 w-4 shrink-0 text-yellow-500" />;
+  }
+  // modified
+  return <SquareDot className="h-4 w-4 shrink-0 text-yellow-500" />;
 }
 
 type DiffScope = "all" | "uncommitted";
@@ -237,12 +240,15 @@ function DiffFileList({ files }: { files: DiffFile[] }) {
           >
             <DiffFileStatusIcon status={file.status} />
             <div className="flex min-w-0 flex-1 items-baseline gap-1.5 overflow-hidden">
-              <span className="shrink-0 text-xs font-medium text-foreground">
+              <span className="shrink-0 text-xs font-medium text-foreground font-mono">
                 {fileName}
               </span>
               {dirPath && (
-                <span className="min-w-0 truncate text-[10px] text-muted-foreground">
-                  {dirPath.replace(/\/$/, "")}
+                <span
+                  className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[10px] text-muted-foreground"
+                  dir="rtl"
+                >
+                  <bdi>{dirPath.replace(/\/$/, "")}</bdi>
                 </span>
               )}
             </div>

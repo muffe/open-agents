@@ -2768,6 +2768,14 @@ export function SessionChatContent({
                       onOpenFile={(fp) => setSelectedWorkspaceFile(fp)}
                     >
                       <div className="space-y-6">
+                        {groupedRenderMessages.length === 0 &&
+                          !hasPendingResponse && (
+                            <div className="flex h-full min-h-[40vh] items-center justify-center">
+                              <p className="text-sm text-muted-foreground">
+                                Send a message to get started
+                              </p>
+                            </div>
+                          )}
                         {groupedRenderMessages.map(
                           ({
                             message: m,

@@ -74,13 +74,21 @@ export function SessionLayoutShell({
   return (
     <SessionLayoutContext.Provider value={layoutContext}>
       <GitPanelProvider>
-        {/* Persistent header + tabs — never unmount during chat switches */}
+        {/*
+          The children (SessionChatContent) renders a flex row with:
+            - left column (chat/diff content)
+            - right column (GitPanel, when open)
+          Both header and tabs persist here at layout level.
+          The children div uses flex-1 to fill remaining vertical space,
+          and the page content inside creates the horizontal split with the panel.
+        */}
         <SessionHeader />
         {activeChatId && (
           <ChatTabs activeChatId={activeChatId} />
         )}
-        {/* Per-chat page content fills remaining vertical space */}
-        <div className="relative min-h-0 flex-1 overflow-hidden">
+        {/* flex-1 + min-h-0 lets the page content (which is a flex row with
+            chat + panel) fill the remaining height correctly */}
+        <div className="min-h-0 flex-1">
           {children}
         </div>
       </GitPanelProvider>
