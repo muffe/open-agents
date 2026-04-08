@@ -17,7 +17,6 @@ import { getAllVariants } from "@/lib/model-variants";
 import { fetchAvailableLanguageModelsWithContext } from "@/lib/models-with-context";
 import { getServerSession } from "@/lib/session/get-server-session";
 import { getInitialIsOnlyChatInSession } from "./only-chat-in-session";
-import { GitPanelProvider } from "./git-panel-context";
 import { SessionChatContent } from "./session-chat-content";
 import { SessionChatProvider } from "./session-chat-context";
 
@@ -171,14 +170,12 @@ export default async function SessionChatPage({
         initialMessages={initialMessages}
         initialModelOptions={initialModelOptions}
       >
-        <GitPanelProvider>
-          <SessionChatContent
-            initialIsOnlyChatInSession={initialIsOnlyChatInSession}
-            messageDurationMap={messageDurationMap}
-            messageStartedAtMap={messageStartedAtMap}
-            lastUserMessageSentAt={lastUserMessageSentAt}
-          />
-        </GitPanelProvider>
+        <SessionChatContent
+          initialIsOnlyChatInSession={initialIsOnlyChatInSession}
+          messageDurationMap={messageDurationMap}
+          messageStartedAtMap={messageStartedAtMap}
+          lastUserMessageSentAt={lastUserMessageSentAt}
+        />
       </SessionChatProvider>
     </DiffsProvider>
   );

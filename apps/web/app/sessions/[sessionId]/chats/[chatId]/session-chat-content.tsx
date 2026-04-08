@@ -110,9 +110,7 @@ import { useAutoCommitStatus } from "./hooks/use-auto-commit-status";
 import { useCodeEditor } from "./hooks/use-code-editor";
 import { useDevServer } from "./hooks/use-dev-server";
 
-import { GitPanelProvider, useGitPanel } from "./git-panel-context";
-import { SessionHeader } from "./session-header";
-import { ChatTabs } from "./chat-tabs";
+import { useGitPanel } from "./git-panel-context";
 import { GitPanel } from "./git-panel";
 import {
   createSandbox,
@@ -880,7 +878,7 @@ export function SessionChatContent({
   const [branchPreviewUrlChangeBaseline, setBranchPreviewUrlChangeBaseline] =
     useState<string | null | undefined>(undefined);
   const hasMounted = useHasMounted();
-  const { activeView } = useGitPanel();
+  const { activeView, shareRequested, setShareRequested } = useGitPanel();
   const { preferences } = useUserPreferences();
   const isIosDevice = useMemo(() => {
     if (typeof navigator === "undefined") {
@@ -2692,34 +2690,19 @@ export function SessionChatContent({
   return (
     <>
     <div className="flex h-full overflow-hidden">
-      {/* Left column: header + tabs + content */}
+      {/* Left column: content */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Header */}
-        <SessionHeader
-          session={session}
-          chatId={chatInfo.id}
-          sandboxInfo={sandboxInfo}
-          isSandboxActive={isSandboxActive}
-          isCreatingSandbox={isCreatingSandbox}
-          isRestoringSnapshot={isRestoringSnapshot}
-          isReconnectingSandbox={isReconnectingSandbox}
-          isHibernating={isHibernatingUi}
-          onShareClick={() => setMobileShareOpen(true)}
-        />
-
-        {/* Chat tabs */}
-        <ChatTabs
-          activeChatId={chatInfo.id}
-          hasDiff={supportsDiff && Boolean(diff || session.cachedDiff)}
-        />
 
       {/* Share dialog (triggered from header) */}
       <ShareDialog
         sessionId={session.id}
         chatId={chatInfo.id}
         initialShareId={null}
-        externalOpen={mobileShareOpen}
-        onExternalOpenChange={setMobileShareOpen}
+        externalOpen={mobileShareOpen || shareRequested}
+        onExternalOpenChange={(open) => {
+          setMobileShareOpen(open);
+          if (!open) setShareRequested(false);
+        }}
       />
 
       {/* Archive confirmation dialog */}

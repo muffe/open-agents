@@ -3,7 +3,6 @@
 import {
   ExternalLink,
   Link2,
-  Loader2,
   PanelLeft,
   PanelRight,
 } from "lucide-react";
@@ -16,110 +15,21 @@ import {
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useGitPanel } from "./git-panel-context";
-import type { SandboxInfo } from "./session-chat-context";
+import { useSessionLayout } from "@/app/sessions/[sessionId]/session-layout-context";
 
-type SessionHeaderProps = {
-  session: {
-    id: string;
-    title: string;
-    repoName: string | null;
-    repoOwner: string | null;
-    cloneUrl: string | null;
-    branch: string | null;
-  };
-  chatId: string;
-  sandboxInfo: SandboxInfo | null;
-  isSandboxActive: boolean;
-  isCreatingSandbox: boolean;
-  isRestoringSnapshot: boolean;
-  isReconnectingSandbox: boolean;
-  isHibernating: boolean;
-  onShareClick: () => void;
-};
-
-function SandboxDot({
-  sandboxInfo,
-  isActive,
-  isCreating,
-  isRestoring,
-  isReconnecting,
-  isHibernating,
-}: {
-  sandboxInfo: SandboxInfo | null;
-  isActive: boolean;
-  isCreating: boolean;
-  isRestoring: boolean;
-  isReconnecting: boolean;
-  isHibernating: boolean;
-}) {
-  if (isCreating || isRestoring || isReconnecting || isHibernating) {
-    const transitionLabel = isHibernating
-      ? "Hibernating sandbox..."
-      : isReconnecting
-        ? "Reconnecting sandbox..."
-        : "Creating sandbox...";
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center justify-center">
-            <Loader2 className="size-3 animate-spin text-yellow-500" />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" sideOffset={8}>
-          {isRestoring ? "Restoring sandbox..." : transitionLabel}
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (!sandboxInfo || !isActive) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center justify-center p-0.5">
-            <span className="size-2 rounded-full bg-muted-foreground/40" />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" sideOffset={8}>
-          Sandbox inactive
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="flex items-center p-0.5">
-          <span className="size-2 rounded-full bg-green-500" />
-        </div>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" sideOffset={8}>
-        Sandbox active
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
-export function SessionHeader({
-  session,
-  chatId,
-  sandboxInfo,
-  isSandboxActive,
-  isCreatingSandbox,
-  isRestoringSnapshot,
-  isReconnectingSandbox,
-  isHibernating,
-  onShareClick,
-}: SessionHeaderProps) {
+/**
+ * Session header that uses only layout-level data (persists across chat switches).
+ * Sandbox-specific props are removed to prevent layout shift during navigation.
+ */
+export function SessionHeader() {
   const { toggleSidebar } = useSidebar();
-  const { gitPanelOpen, toggleGitPanel } = useGitPanel();
+  const { gitPanelOpen, toggleGitPanel, setShareRequested } = useGitPanel();
+  const { session } = useSessionLayout();
 
   return (
     <header className="border-b border-border px-3 py-2">
       <div className="flex items-center justify-between gap-2">
-        {/* Left side: panel toggle + repo/branch + sandbox dot */}
+        {/* Left side: panel toggle + repo/branch + title */}
         <div className="flex min-w-0 items-center gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -169,21 +79,12 @@ export function SessionHeader({
               {session.title}
             </span>
 
-            <SandboxDot
-              sandboxInfo={sandboxInfo}
-              isActive={isSandboxActive}
-              isCreating={isCreatingSandbox}
-              isRestoring={isRestoringSnapshot}
-              isReconnecting={isReconnectingSandbox}
-              isHibernating={isHibernating}
-            />
-
             {/* Share link icon */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  onClick={onShareClick}
+                  onClick={() => setShareRequested(true)}
                   className="ml-1 rounded p-1 text-muted-foreground/60 transition-colors hover:text-foreground"
                 >
                   <Link2 className="h-3.5 w-3.5" />

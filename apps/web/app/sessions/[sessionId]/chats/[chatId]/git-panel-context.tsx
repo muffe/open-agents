@@ -36,6 +36,10 @@ type GitPanelContextValue = {
 
   /** Open the diff tab in the main content area, optionally focused on a file */
   openDiffToFile: (filePath: string) => void;
+
+  /** Share dialog trigger (set by per-chat page, called by header) */
+  shareRequested: boolean;
+  setShareRequested: (requested: boolean) => void;
 };
 
 const GitPanelContext = createContext<GitPanelContextValue | undefined>(
@@ -48,6 +52,7 @@ export function GitPanelProvider({ children }: { children: ReactNode }) {
   const [activeView, setActiveView] = useState<ActiveView>("chat");
   const [focusedDiffFile, setFocusedDiffFile] = useState<string | null>(null);
   const [changesTabDismissed, setChangesTabDismissed] = useState(false);
+  const [shareRequested, setShareRequested] = useState(false);
 
   const toggleGitPanel = useCallback(() => {
     setGitPanelOpen((prev) => !prev);
@@ -73,8 +78,10 @@ export function GitPanelProvider({ children }: { children: ReactNode }) {
       focusedDiffFile,
       setFocusedDiffFile,
       openDiffToFile,
+      shareRequested,
+      setShareRequested,
     }),
-    [gitPanelOpen, toggleGitPanel, gitPanelTab, activeView, changesTabDismissed, focusedDiffFile, openDiffToFile],
+    [gitPanelOpen, toggleGitPanel, gitPanelTab, activeView, changesTabDismissed, focusedDiffFile, openDiffToFile, shareRequested],
   );
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useCallback, useMemo } from "react";
 import {
@@ -8,6 +8,9 @@ import {
   useSessionChats,
 } from "@/hooks/use-session-chats";
 import type { Session } from "@/lib/db/schema";
+import { GitPanelProvider } from "./chats/[chatId]/git-panel-context";
+import { SessionHeader } from "./chats/[chatId]/session-header";
+import { ChatTabs } from "./chats/[chatId]/chat-tabs";
 import { SessionLayoutContext } from "./session-layout-context";
 
 type SessionLayoutShellProps = {
@@ -25,6 +28,8 @@ export function SessionLayoutShell({
   children,
 }: SessionLayoutShellProps) {
   const router = useRouter();
+  const params = useParams<{ chatId?: string }>();
+  const activeChatId = params.chatId ?? "";
 
   const sessionId = initialSession.id;
 
@@ -66,9 +71,29 @@ export function SessionLayoutShell({
     [initialSession, chats, chatsLoading, createChat, switchChat, deleteChat, renameChat],
   );
 
+  // hasDiff is approximated from session-level data; the per-chat diff context
+  // will provide the real value once the chat page mounts.
+  const hasDiff =
+    (initialSession.linesAdded ?? 0) > 0 ||
+    (initialSession.linesRemoved ?? 0) > 0 ||
+    initialSession.cloneUrl !== null;
+
   return (
     <SessionLayoutContext.Provider value={layoutContext}>
-      {children}
+      <GitPanelProvider>
+        {/* Persistent header + tabs — never unmount during chat switches */}
+        <SessionHeader />
+        {activeChatId && (
+          <ChatTabs
+            activeChatId={activeChatId}
+            hasDiff={hasDiff}
+          />
+        )}
+        {/* Per-chat page content fills remaining vertical space */}
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          {children}
+        </div>
+      </GitPanelProvider>
     </SessionLayoutContext.Provider>
   );
 }
