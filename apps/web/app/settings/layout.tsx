@@ -2,8 +2,6 @@
 
 import {
   ArrowLeft,
-  BarChart3,
-  Link2,
   LogOut,
   Menu,
   Settings as SettingsIcon,
@@ -29,6 +27,17 @@ import { PreferencesSectionSkeleton } from "./preferences-section";
 import { ProfileSectionSkeleton } from "./profile-section";
 import { UsageSectionSkeleton } from "./usage-section";
 
+/** Skeleton shown while auth is loading for the combined profile page */
+function ProfilePageSkeleton() {
+  return (
+    <>
+      <ProfileSectionSkeleton />
+      <AccountsSectionSkeleton />
+      <UsageSectionSkeleton />
+    </>
+  );
+}
+
 const sidebarItems = [
   {
     id: "profile",
@@ -47,18 +56,6 @@ const sidebarItems = [
     label: "Model Variants",
     href: "/settings/model-variants",
     icon: SlidersHorizontal,
-  },
-  {
-    id: "accounts",
-    label: "Connected Accounts",
-    href: "/settings/accounts",
-    icon: Link2,
-  },
-  {
-    id: "usage",
-    label: "Usage",
-    href: "/settings/usage",
-    icon: BarChart3,
   },
   {
     id: "leaderboard",
@@ -193,7 +190,7 @@ function SettingsLayout({
         <div
           className={cn(
             "mx-auto space-y-6 px-4 py-6 md:px-6 md:py-8",
-            pathname === "/settings/usage" ||
+            pathname === "/settings/profile" ||
               pathname === "/settings/leaderboard"
               ? "max-w-4xl"
               : "max-w-2xl",
@@ -215,14 +212,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <PreferencesSectionSkeleton />
     ) : activeItem?.id === "model-variants" ? (
       <ModelVariantsSectionSkeleton />
-    ) : activeItem?.id === "accounts" ? (
-      <AccountsSectionSkeleton />
-    ) : activeItem?.id === "usage" ? (
-      <UsageSectionSkeleton />
     ) : activeItem?.id === "leaderboard" ? (
       <LeaderboardSectionSkeleton />
     ) : (
-      <ProfileSectionSkeleton />
+      <ProfilePageSkeleton />
     );
 
   return (
