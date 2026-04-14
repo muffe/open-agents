@@ -1,14 +1,19 @@
+import { type ComponentProps } from "react";
 import { Button } from "@/components/ui/button";
 
 const GITHUB_URL = "https://github.com/vercel-labs/open-harness";
 
 export function GitHubLink({
   children,
+  variant = "ghost",
+  size,
 }: {
   readonly children?: React.ReactNode;
+  readonly variant?: ComponentProps<typeof Button>["variant"];
+  readonly size?: ComponentProps<typeof Button>["size"];
 }) {
   return (
-    <Button variant="ghost" size={children ? "lg" : "icon"} asChild>
+    <Button variant={variant} size={size ?? (children ? "lg" : "icon")} asChild>
       <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
         <GitHubIcon />
         {children}

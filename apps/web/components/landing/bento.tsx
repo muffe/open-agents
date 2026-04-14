@@ -85,7 +85,7 @@ export function LandingBento() {
               synthetic demos &mdash; real infrastructure for real agents.
             </p>
             <div className="mt-6">
-              <SignInButton className="h-10 rounded-md border-0 bg-(--l-btn-bg) px-5 text-[13px] font-medium text-(--l-btn-fg) transition-colors hover:bg-(--l-btn-hover)" />
+              <SignInButton />
             </div>
           </div>
         </div>

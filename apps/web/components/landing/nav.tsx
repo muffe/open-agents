@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SignInButton } from "@/components/auth/sign-in-button";
+import { cn } from "@/lib/utils";
 import { GitHubLink } from "./github-link";
 import { Logo } from "./logo";
 
-export function LandingNav() {
+export function LandingNav({
+  showSignIn = false,
+}: {
+  readonly showSignIn?: boolean;
+}) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -18,15 +24,25 @@ export function LandingNav() {
     <nav className="fixed left-0 right-0 top-0 z-50">
       <div className="mx-auto max-w-[1320px]">
         <div
-          className={`flex h-16 items-center justify-between border-x border-b px-6 transition-colors duration-200 ${
+          className={`flex h-16 items-center justify-between border-x pl-6 pr-4 transition-all duration-200 ${
             scrolled
-              ? "border-x-(--l-border) border-b-(--l-border) bg-(--l-nav-bg) backdrop-blur-sm"
-              : "border-x-transparent border-b-transparent bg-transparent"
+              ? "border-x-(--l-border) bg-(--l-nav-bg) shadow-[0_1px_0_0_var(--l-border)]"
+              : "border-x-transparent bg-transparent shadow-none"
           }`}
         >
           <Logo className="h-[17px]" />
 
-          <GitHubLink />
+          <div
+            className={cn(
+              "flex items-center gap-2 transition-all duration-200 [transition-timing-function:cubic-bezier(0.4,0.04,0.04,1)]",
+              showSignIn
+                ? "opacity-100 blur-none"
+                : "pointer-events-none opacity-0 blur-xs",
+            )}
+          >
+            <GitHubLink variant="ghost" size="sm" />
+            <SignInButton size="sm" />
+          </div>
         </div>
       </div>
     </nav>

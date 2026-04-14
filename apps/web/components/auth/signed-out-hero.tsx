@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import { AppMockup } from "@/components/landing/app-mockup";
 import { GitHubLink } from "@/components/landing/github-link";
@@ -10,6 +11,20 @@ import { LandingNav } from "@/components/landing/nav";
 import { Stage } from "@/components/landing/stage";
 
 export function SignedOutHero() {
+  const heroButtonsRef = useRef<HTMLDivElement>(null);
+  const [heroButtonsVisible, setHeroButtonsVisible] = useState(true);
+
+  useEffect(() => {
+    const el = heroButtonsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroButtonsVisible(entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="landing relative isolate min-h-screen bg-(--l-bg) text-(--l-fg) selection:bg-(--l-fg)/20">
       <div className="pointer-events-none absolute inset-y-0 left-0 right-0 hidden md:block">
@@ -17,7 +32,7 @@ export function SignedOutHero() {
       </div>
 
       <div className="relative z-10">
-        <LandingNav />
+        <LandingNav showSignIn={!heroButtonsVisible} />
 
         <section className="relative overflow-hidden pb-0 pt-24 md:pb-0 md:pt-44">
           <div className="mx-auto max-w-[1320px] px-6">
@@ -35,8 +50,8 @@ export function SignedOutHero() {
               </p>
             </div>
 
-            <div className="mt-6 flex items-center gap-4 sm:mt-8">
-              <SignInButton className="rounded-md border-0 bg-(--l-btn-bg) px-5 text-[13px] font-medium text-(--l-btn-fg) transition-colors hover:bg-(--l-btn-hover)" size="lg" />
+            <div ref={heroButtonsRef} className="mt-6 flex items-center gap-2 sm:mt-8">
+              <SignInButton size="lg" />
               <GitHubLink>Open Source</GitHubLink>
             </div>
           </div>
