@@ -100,7 +100,7 @@ ELEVENLABS_API_KEY=
 
 - `REDIS_URL` / `KV_URL`: optional skills metadata cache (falls back to in-memory when not configured).
 - `VERCEL_PROJECT_PRODUCTION_URL` / `NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL`: canonical production URL for metadata and some callback behavior.
-- `VERCEL_SANDBOX_BASE_SNAPSHOT_ID`: override the default sandbox snapshot.
+- `VERCEL_SANDBOX_BASE_SNAPSHOT_ID`: optional base snapshot ID for faster sandbox startup. Snapshots are scoped to your Vercel account/team; leave unset to use Vercel's default runtime image, or create your own with `bun run sandbox:snapshot-base`.
 - `ELEVENLABS_API_KEY`: voice transcription.
 
 ## Deploy your own copy on Vercel

@@ -180,7 +180,9 @@ export async function POST(req: Request) {
       gitUser,
       timeout: DEFAULT_SANDBOX_TIMEOUT_MS,
       ports: DEFAULT_SANDBOX_PORTS,
-      baseSnapshotId: DEFAULT_SANDBOX_BASE_SNAPSHOT_ID,
+      ...(DEFAULT_SANDBOX_BASE_SNAPSHOT_ID
+        ? { baseSnapshotId: DEFAULT_SANDBOX_BASE_SNAPSHOT_ID }
+        : {}),
       persistent: !!sandboxName,
       resume: !!sandboxName,
       createIfMissing: !!sandboxName,

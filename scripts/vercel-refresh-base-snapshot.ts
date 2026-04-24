@@ -38,14 +38,15 @@ function printUsage() {
   bun run sandbox:snapshot-base -- --from snap_123 --command "apt-get install -y ripgrep"
 
 Options:
-  --from <snapshot-id>         Override the starting snapshot id
+  --from <snapshot-id>         Override the starting snapshot id. When omitted,
+                               starts from Vercel's default runtime image.
   --command <shell-command>    Command to run inside the sandbox. Repeat as needed.
   --sandbox-timeout-ms <ms>    Sandbox lifetime for the refresh run
   --command-timeout-ms <ms>    Timeout for each setup command (default: ${DEFAULT_BASE_SNAPSHOT_COMMAND_TIMEOUT_MS})
   --help                       Show this message
 
 Current configured base snapshot:
-  ${DEFAULT_SANDBOX_BASE_SNAPSHOT_ID}`);
+  ${DEFAULT_SANDBOX_BASE_SNAPSHOT_ID ?? "(none; using Vercel default runtime image)"}`);
 }
 
 function requireOptionValue(
@@ -142,7 +143,9 @@ async function main() {
 
   console.log("");
   console.log(`New snapshot id: ${result.snapshotId}`);
-  console.log(`Started from snapshot: ${result.sourceSnapshotId}`);
+  console.log(
+    `Started from snapshot: ${result.sourceSnapshotId ?? "(none; Vercel default runtime image)"}`,
+  );
   console.log(
     `Update ${SANDBOX_BASE_SNAPSHOT_CONFIG_PATH} to use: "${result.snapshotId}"`,
   );
