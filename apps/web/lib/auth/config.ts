@@ -40,6 +40,81 @@ function getAuthBaseURLFallback(): string | undefined {
   );
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function readStringField(
+  record: Record<string, unknown>,
+  field: string,
+): string | null {
+  const value = record[field];
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function getStringFromPath(value: unknown, path: string[]): string | null {
+  let current: unknown = value;
+
+  for (const segment of path) {
+    if (!isRecord(current)) {
+      return null;
+    }
+
+    current = current[segment];
+  }
+
+  return typeof current === "string" && current.trim() ? current.trim() : null;
+}
+
+function getAvatarUsername(profile: unknown): string | null {
+  const image =
+    getStringFromPath(profile, ["image"]) ??
+    getStringFromPath(profile, ["picture"]) ??
+    getStringFromPath(profile, ["avatarUrl"]) ??
+    getStringFromPath(profile, ["avatar_url"]);
+
+  if (!image) {
+    return null;
+  }
+
+  try {
+    const url = new URL(image);
+    return url.searchParams.get("u");
+  } catch {
+    return null;
+  }
+}
+
+function normalizeUsername(value: string): string | null {
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return normalized || null;
+}
+
+function mapProfileToUser(profile: unknown): { username: string } {
+  const profileRecord = isRecord(profile) ? profile : {};
+  const email = readStringField(profileRecord, "email");
+  const emailName = email?.split("@")[0] ?? null;
+
+  const username =
+    readStringField(profileRecord, "username") ??
+    readStringField(profileRecord, "login") ??
+    readStringField(profileRecord, "user_name") ??
+    readStringField(profileRecord, "preferred_username") ??
+    readStringField(profileRecord, "nickname") ??
+    getAvatarUsername(profile) ??
+    readStringField(profileRecord, "name") ??
+    emailName ??
+    nanoid();
+
+  return { username: normalizeUsername(username) ?? nanoid() };
+}
+
 function getAllowedAuthHosts(): string[] {
   const hosts = new Set<string>(["localhost:3000", "127.0.0.1:3000"]);
 
@@ -115,10 +190,12 @@ export const auth = betterAuth({
       clientSecret: process.env.VERCEL_APP_CLIENT_SECRET ?? "",
       scope: ["openid", "email", "profile", "offline_access"],
       overrideUserInfoOnSignIn: true,
+      mapProfileToUser,
     },
     github: {
       clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID ?? "",
       clientSecret: process.env.GITHUB_CLIENT_SECRET ?? "",
+      mapProfileToUser,
     },
   },
 
